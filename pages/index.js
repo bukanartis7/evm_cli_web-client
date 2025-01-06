@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 export default function Home() {
-  const [ip, setIp] = useState("127.0.0.1");
+  const [ip, setIp] = useState("localhost");
   const [port, setPort] = useState("");
   const [logs, setLogs] = useState([]);
   const [isListening, setIsListening] = useState(false);
