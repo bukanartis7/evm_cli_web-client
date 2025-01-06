@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function Home() {
   const [ip, setIp] = useState("localhost");
@@ -6,6 +6,8 @@ export default function Home() {
   const [logs, setLogs] = useState([]);
   const [isListening, setIsListening] = useState(false);
   const [socket, setSocket] = useState(null);
+  const [autoScroll, setAutoScroll] = useState(true);
+  const logsEndRef = useRef(null);
 
   const handleIpChange = (e) => {
     setIp(e.target.value);
@@ -72,18 +74,30 @@ export default function Home() {
     }
   };
 
+  const toggleAutoScroll = () => {
+    setAutoScroll((prev) => !prev);
+  };
+
+  useEffect(() => {
+    if (autoScroll && logsEndRef.current) {
+      logsEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [logs, autoScroll]);
+
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+    <div
+      style={{
+        padding: "10%",
+        fontFamily: "Arial, sans-serif",
+        display: "flex",
+        flexDirection: "column",
+        gap: "20px",
+        height: "100vh",
+        boxSizing: "border-box",
+      }}
+    >
       <h1 style={{ textAlign: "center" }}>WebSocket Client</h1>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px",
-          maxWidth: "400px",
-          margin: "0 auto",
-        }}
-      >
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
         <div style={{ display: "flex", flexDirection: "column" }}>
           <label htmlFor="ip">IP Address:</label>
           <input
@@ -150,14 +164,23 @@ export default function Home() {
         >
           Save Logs
         </button>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <label>Auto Scroll:</label>
+          <input
+            type="checkbox"
+            checked={autoScroll}
+            onChange={toggleAutoScroll}
+            style={{ cursor: "pointer" }}
+          />
+        </div>
       </div>
-      <div style={{ marginTop: "20px", maxWidth: "400px", margin: "20px auto" }}>
+      <div style={{ flexGrow: 1, marginTop: "20px" }}>
         <h2 style={{ textAlign: "center" }}>Logs:</h2>
         <div
           style={{
             border: "1px solid #ccc",
             padding: "10px",
-            height: "200px",
+            height: "100%",
             overflowY: "scroll",
             borderRadius: "4px",
             backgroundColor: "#f9f9f9",
@@ -166,6 +189,7 @@ export default function Home() {
           {logs.map((log, index) => (
             <div key={index}>{log}</div>
           ))}
+          <div ref={logsEndRef}></div>
         </div>
       </div>
     </div>
