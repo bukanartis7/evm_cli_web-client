@@ -2,11 +2,12 @@ import { useState, useEffect, useRef } from "react";
 
 export default function Home() {
   const [ip, setIp] = useState("localhost");
-  const [port, setPort] = useState("");
+  const [port, setPort] = useState("4569");
   const [logs, setLogs] = useState([]);
   const [isListening, setIsListening] = useState(false);
   const [socket, setSocket] = useState(null);
   const [autoScroll, setAutoScroll] = useState(true);
+  const [autoReconnect, setAutoReconnect] = useState(false);
   const logsEndRef = useRef(null);
 
   const handleIpChange = (e) => {
@@ -52,6 +53,10 @@ export default function Home() {
     ws.onclose = () => {
       addLog("Connection closed.");
       setIsListening(false);
+      if (autoReconnect) {
+        addLog("Reconnecting...");
+        connectToServer();
+      }
     };
 
     setSocket(ws);
@@ -76,6 +81,14 @@ export default function Home() {
 
   const toggleAutoScroll = () => {
     setAutoScroll((prev) => !prev);
+  };
+
+  const clearLogs = () => {
+    setLogs([]);
+  };
+
+  const toggleAutoReconnect = () => {
+    setAutoReconnect((prev) => !prev);
   };
 
   useEffect(() => {
@@ -164,12 +177,34 @@ export default function Home() {
         >
           Save Logs
         </button>
+        <button
+          onClick={clearLogs}
+          style={{
+            padding: "10px 20px",
+            borderRadius: "4px",
+            border: "none",
+            backgroundColor: "#FFC107",
+            color: "white",
+            cursor: "pointer",
+          }}
+        >
+          Clear Logs
+        </button>
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <label>Auto Scroll:</label>
           <input
             type="checkbox"
             checked={autoScroll}
             onChange={toggleAutoScroll}
+            style={{ cursor: "pointer" }}
+          />
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <label>Auto Reconnect:</label>
+          <input
+            type="checkbox"
+            checked={autoReconnect}
+            onChange={toggleAutoReconnect}
             style={{ cursor: "pointer" }}
           />
         </div>
